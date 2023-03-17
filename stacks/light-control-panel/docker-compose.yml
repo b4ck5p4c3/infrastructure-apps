@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  light-control-panel:
+    image: cr.yandex/crpsadoarie341pr1p7u/light-control-panel:latest
+    restart: always
+    networks:
+      - net-traefik
+    security_opt:
+      - no-new-privileges:true
+    env_file: ../../stack.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.light-control-panel.entrypoints=websecure"
+      - "traefik.http.routers.light-control-panel.rule=Host(`light.internal.0x08.in`)"
+      - "traefik.http.services.light-control-panel-svc.loadbalancer.server.port=8080"
+      - "traefik.http.routers.light-control-panel.middlewares=light-control-panel-ipwhitelist"
+      - "traefik.http.middlewares.light-control-panel-ipwhitelist.ipwhitelist.sourcerange=10.0.2.0/23"
+
+networks:
+  net-traefik:
+    external: true
