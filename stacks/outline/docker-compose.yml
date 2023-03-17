@@ -9,7 +9,7 @@ services:
 
   wiki:
     image: outlinewiki/outline:latest
-    command: sh -c "yarn sequelize:migrate --env production-ssl-disabled && yarn start"
+    command: sh -c "yarn db:migrate --env production-ssl-disabled && yarn start"
     restart: always
     env_file: ../../stack.env
     healthcheck:
