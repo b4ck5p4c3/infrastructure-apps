@@ -1,0 +1,51 @@
+version: "3"
+services:
+  redis:
+    image: redis
+    hostname: redis
+    restart: always
+    networks:
+      - outline
+
+  wiki:
+    image: outlinewiki/outline:latest
+    command: sh -c "yarn sequelize:migrate --env production-ssl-disabled && yarn start"
+    restart: always
+    env_file:
+      - stack.env
+    healthcheck:
+      test: ["wget --spider -T 3 wiki.0x08.in"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - net-traefik
+      - outline
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wiki.entrypoints=websecure"
+      - "traefik.http.routers.wiki.rule=Host(`wiki.0x08.in`)"
+      - "traefik.http.routers.wiki.middlewares=wiki-redirect-root-to-sharedlink"
+      - "traefik.http.services.wiki-svc.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.wiki-redirect-root-to-sharedlink.redirectregex.regex=^https://wiki.0x08.in/?$$"
+      - "traefik.http.middlewares.wiki-redirect-root-to-sharedlink.redirectregex.replacement=https://wiki.0x08.in/share/9c609dd1-6fcc-47dc-94a4-734c88efecde"
+    depends_on:
+      - redis
+
+  moonflower:
+    env_file:
+      - stack.env
+    volumes:
+      - '/etc/localtime:/etc/localtime:ro'
+    image: 'imcatwhocode/moonflower:14'
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  outline:
+  net-traefik:
+    external: true
