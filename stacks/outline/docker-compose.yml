@@ -11,8 +11,7 @@ services:
     image: outlinewiki/outline:latest
     command: sh -c "yarn sequelize:migrate --env production-ssl-disabled && yarn start"
     restart: always
-    env_file:
-      - stack.env
+    env_file: stack.env
     healthcheck:
       test: ["wget --spider -T 3 wiki.0x08.in"]
       interval: 5s
