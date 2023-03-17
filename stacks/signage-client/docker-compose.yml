@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  light-control-panel:
+    image: cr.yandex/crpsadoarie341pr1p7u/signage-client:latest
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    env_file: ../../stack.env
